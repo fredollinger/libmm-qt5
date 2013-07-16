@@ -25,6 +25,6 @@ Name: libQtModemManager
 Description: Convenience Qt library for clients of ModemManager
 Version: @VERSION@
 
-Requires: QtCore QtDBus QtXml
+Requires: Qt5Core Qt5DBus Qt5Xml
 Cflags: -I${includedir} @CMAKE_INCLUDE_PATH@
 Libs: -L${libdir} -lQtModemManager @CMAKE_LIBRARY_PATH@

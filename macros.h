@@ -21,6 +21,8 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MM_MACROS_H
 #define MM_MACROS_H
 
+#include <QAtomicPointer>
+
 # define MM_GLOBAL_STATIC_STRUCT_NAME(NAME)
 typedef void (*MmCleanUpFunction)();
 class MmCleanUpGlobalStatic
@@ -43,7 +45,7 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     }                                                                          \
     inline bool exists() const                                                 \
     {                                                                          \
-        return _mm_static_##NAME != 0;                                          \
+        return _mm_static_##NAME.load() != nullptr;                         \
     }                                                                          \
     inline operator TYPE*()                                                    \
     {                                                                          \
@@ -51,20 +53,20 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     }                                                                          \
     inline TYPE *operator->()                                                  \
     {                                                                          \
-        if (!_mm_static_##NAME) {                                               \
+        if (!_mm_static_##NAME.load()) {                                               \
             if (isDestroyed()) {                                               \
                 qFatal("Fatal Error: Accessed global static '%s *%s()' after destruction. " \
                        "Defined at %s:%d", #TYPE, #NAME, __FILE__, __LINE__);  \
             }                                                                  \
             TYPE *x = new TYPE ARGS;                                           \
             if (!_mm_static_##NAME.testAndSetOrdered(0, x)                      \
-                && _mm_static_##NAME != x ) {                                   \
+                && _mm_static_##NAME.load() != x ) {                                   \
                 delete x;                                                      \
             } else {                                                           \
                 static MmCleanUpGlobalStatic cleanUpObject = { destroy };       \
             }                                                                  \
         }                                                                      \
-        return _mm_static_##NAME;                                               \
+        return _mm_static_##NAME.load();                                               \
     }                                                                          \
     inline TYPE &operator*()                                                   \
     {                                                                          \
@@ -73,8 +75,8 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     static void destroy()                                                      \
     {                                                                          \
         _mm_static_##NAME##_destroyed = true;                                   \
-        TYPE *x = _mm_static_##NAME;                                            \
-        _mm_static_##NAME = 0;                                                  \
+        TYPE *x = _mm_static_##NAME.load();                                            \
+        _mm_static_##NAME.store(nullptr);                                                  \
         delete x;                                                              \
     }                                                                          \
 } NAME;

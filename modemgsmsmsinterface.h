@@ -22,7 +22,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MODEMMANAGER_MODEMGSMSMSINTERFACE_H
 #define MODEMMANAGER_MODEMGSMSMSINTERFACE_H
 
-#include "ModemManagerQt-export.h"
+#include "ModemManagerQt5-export.h"
 
 #include <QObject>
 #include "modeminterface.h"

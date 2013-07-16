@@ -32,9 +32,11 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include "macros.h"
 #include "mmdebug.h"
 
+
 const QString ModemManager::DBUS_SERVICE = QString::fromLatin1("org.freedesktop.ModemManager");
 const QString ModemManager::DBUS_DAEMON_PATH = QString::fromLatin1("/org/freedesktop/ModemManager");
 
+//QBasicAtomicPointer<ModemManager::ModemManagerPrivate> globalModemManager;
 MM_GLOBAL_STATIC(ModemManager::ModemManagerPrivate, globalModemManager)
 
 ModemManager::ModemManagerPrivate::ModemManagerPrivate() :
