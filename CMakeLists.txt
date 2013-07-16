@@ -90,7 +90,7 @@ install(TARGETS ModemManagerQt5 DESTINATION lib${LIB_SUFFIX})
 install( FILES
 ${ModemManagerQt_HEADERS}
 DESTINATION
-include/ModemManagerQt COMPONENT Devel)
+include/ModemManagerQt5 COMPONENT Devel)
 
 set_property(TARGET ModemManagerQt5 PROPERTY COMPILE_DEFINITIONS MAKE_QTMODEMMANAGER_LIB)
 set_property(TARGET ModemManagerQt5 PROPERTY VERSION ${VERSION})
