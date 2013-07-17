@@ -23,7 +23,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MODEMMANAGER_MODEMMANAGER_H
 #define MODEMMANAGER_MODEMMANAGER_H
 
-#include "ModemManagerQt5-export.h"
+#include "ModemManagerQt-export.h"
 
 #include <QObject>
 #include <QDBusObjectPath>

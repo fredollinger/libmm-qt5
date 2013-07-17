@@ -29,7 +29,11 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #include "modemgsmsmsinterface.h"
 #include "modemgsmhsointerface.h"
 #include "modemgsmussdinterface.h"
+#if QT_VERSION >= 0x050000
+#include "macros_qt5.h"
+#else
 #include "macros.h"
+#endif
 #include "mmdebug.h"
 
 

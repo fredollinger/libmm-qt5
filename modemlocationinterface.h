@@ -22,7 +22,7 @@ License along with this library.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MODEMMANAGER_MODEMLOCATIONINTERFACE_H
 #define MODEMMANAGER_MODEMLOCATIONINTERFACE_H
 
-#include "ModemManagerQt5-export.h"
+#include "ModemManagerQt-export.h"
 
 #include <QObject>
 #include "modeminterface.h"

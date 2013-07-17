@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.8)
 
-project(libModemManagerQt5)
-set(CMAKE_AUTOMOC ON)
+
+option(USE_QT5 "Using Qt5" OFF)
 
 set(VERSION 0.5.0)
 set(CMAKE_BUILD_TYPE Debug)
@@ -9,10 +9,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
 set(LIB_SUFFIX "" CACHE STRING "Define suffix of library directory name (32/64)" )
 
-find_package(Qt5Core REQUIRED)
-find_package(Qt5DBus REQUIRED)
+set(libraryName)
 
-add_definitions(-std=c++11)
+if(USE_QT5)
+    project(libModemManagerQt5)
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5DBus REQUIRED)
+
+    set(CMAKE_AUTOMOC ON)
+    add_definitions(-std=c++11)
+    set(libraryName ModemManagerQt5)
+else()
+    project(libModemManagerQt)
+    find_package(Qt4 REQUIRED)
+    add_definitions(${QT_DEFINITIONS})
+    set(libraryName ModemManagerQt)
+endif()
+
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${QT_INCLUDES} ${CMAKE_INCLUDE_PATH})
 link_directories(${CMAKE_LIBRARY_PATH})
@@ -21,7 +34,6 @@ include_directories(
    ${CMAKE_CURRENT_SOURCE_DIR}/dbus
    ${CMAKE_CURRENT_BUILD_DIR}
 )
-
 
 set(ModemManagerQt_HEADERS
     manager.h
@@ -34,7 +46,7 @@ set(ModemManagerQt_HEADERS
     modemgsmsmsinterface.h
     modemgsmhsointerface.h
     modemgsmussdinterface.h
-    ModemManagerQt5-export.h
+    ModemManagerQt-export.h
 )
 
 set(ModemManagerQt_PRIVATE_HEADERS
@@ -78,24 +90,28 @@ set( DBUS_INTERFACES_FILES
    dbus/mm-modem-gsm-ussdinterface.cpp
 )
 
-#qt4_wrap_cpp(ModemManagerQt_MOC ${ModemManagerQt_HEADERS} ${ModemManagerQt_PRIVATE_HEADERS})
-#qt4_automoc(${DBUS_INTERFACES_FILES})
+if(NOT USE_QT5)
+    qt4_wrap_cpp(ModemManagerQt_MOC ${ModemManagerQt_HEADERS} ${ModemManagerQt_PRIVATE_HEADERS})
+    qt4_automoc(${DBUS_INTERFACES_FILES})
+endif()
 
-add_library(ModemManagerQt5 SHARED ${ModemManagerQt_MOC} ${ModemManagerQt_SRCS} ${DBUS_INTERFACES_FILES})
-qt5_use_modules(ModemManagerQt5 Core DBus)
+add_library(${libraryName} SHARED ${ModemManagerQt_MOC} ${ModemManagerQt_SRCS} ${DBUS_INTERFACES_FILES})
+if(USE_QT5)
+    qt5_use_modules(${libraryName} Core DBus)
+endif()
 
-target_link_libraries(ModemManagerQt5 ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY})
-install(TARGETS ModemManagerQt5 DESTINATION lib${LIB_SUFFIX})
+target_link_libraries(${libraryName} ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY})
+install(TARGETS ${libraryName} DESTINATION lib${LIB_SUFFIX})
 
 install( FILES
 ${ModemManagerQt_HEADERS}
 DESTINATION
-include/ModemManagerQt5 COMPONENT Devel)
+include/${libraryName} COMPONENT Devel)
 
-set_property(TARGET ModemManagerQt5 PROPERTY COMPILE_DEFINITIONS MAKE_QTMODEMMANAGER_LIB)
-set_property(TARGET ModemManagerQt5 PROPERTY VERSION ${VERSION})
-set_property(TARGET ModemManagerQt5 PROPERTY SOVERSION 0)
+set_property(TARGET ${libraryName} PROPERTY COMPILE_DEFINITIONS MAKE_QTMODEMMANAGER_LIB)
+set_property(TARGET ${libraryName} PROPERTY VERSION ${VERSION})
+set_property(TARGET ${libraryName} PROPERTY SOVERSION 0)
 
 message(STATUS "Writing pkg-config file...")
-configure_file(${CMAKE_SOURCE_DIR}/ModemManagerQt5.pc.cmake ${CMAKE_BINARY_DIR}/ModemManagerQt5.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/ModemManagerQt5.pc DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig/")
+configure_file(${CMAKE_SOURCE_DIR}/ModemManagerQt.pc.cmake ${CMAKE_BINARY_DIR}/${libraryName}.pc @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/${libraryName}.pc DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig/")
