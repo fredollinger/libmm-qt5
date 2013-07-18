@@ -33,6 +33,26 @@ class MmCleanUpGlobalStatic
         inline ~MmCleanUpGlobalStatic() { func(); }
 };
 
+template<typename T>
+T* get(const QBasicAtomicPointer<T> &t)
+{
+#if QT_VERSION > 0x50000
+    return t.load();
+#else
+    return t;
+#endif
+}
+
+template<typename T>
+void store(QBasicAtomicPointer<T> &t, T *val)
+{
+#if QT_VERSION > 0x50000
+    t.store(val);
+#else
+    t = val;
+#endif
+}
+
 #define MM_GLOBAL_STATIC(TYPE, NAME) MM_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ())
 #define MM_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)                            \
 static QBasicAtomicPointer<TYPE > _mm_static_##NAME = Q_BASIC_ATOMIC_INITIALIZER(0); \
@@ -45,7 +65,7 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     }                                                                          \
     inline bool exists() const                                                 \
     {                                                                          \
-        return _mm_static_##NAME != 0;                                         \
+        return get(_mm_static_##NAME) != 0;                                         \
     }                                                                          \
     inline operator TYPE*()                                                    \
     {                                                                          \
@@ -53,20 +73,20 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     }                                                                          \
     inline TYPE *operator->()                                                  \
     {                                                                          \
-        if (!_mm_static_##NAME) {                                               \
+        if (!get(_mm_static_##NAME)) {                                               \
             if (isDestroyed()) {                                               \
                 qFatal("Fatal Error: Accessed global static '%s *%s()' after destruction. " \
                        "Defined at %s:%d", #TYPE, #NAME, __FILE__, __LINE__);  \
             }                                                                  \
             TYPE *x = new TYPE ARGS;                                           \
             if (!_mm_static_##NAME.testAndSetOrdered(0, x)                      \
-                && _mm_static_##NAME != x ) {                                   \
+                && get(_mm_static_##NAME) != x ) {                                   \
                 delete x;                                                      \
             } else {                                                           \
                 static MmCleanUpGlobalStatic cleanUpObject = { destroy };       \
             }                                                                  \
         }                                                                      \
-        return _mm_static_##NAME;                                               \
+        return get(_mm_static_##NAME);                                               \
     }                                                                          \
     inline TYPE &operator*()                                                   \
     {                                                                          \
@@ -75,8 +95,8 @@ static struct MM_GLOBAL_STATIC_STRUCT_NAME(NAME)                                
     static void destroy()                                                      \
     {                                                                          \
         _mm_static_##NAME##_destroyed = true;                                   \
-        TYPE *x = _mm_static_##NAME;                                            \
-        _mm_static_##NAME = 0;                                                  \
+        TYPE *x = get(_mm_static_##NAME);                                            \
+        store(_mm_static_##NAME,static_cast<TYPE *>(0));                                                  \
         delete x;                                                              \
     }                                                                          \
 } NAME;
