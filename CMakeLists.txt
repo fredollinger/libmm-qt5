@@ -113,5 +113,5 @@ set_property(TARGET ${libraryName} PROPERTY VERSION ${VERSION})
 set_property(TARGET ${libraryName} PROPERTY SOVERSION 0)
 
 message(STATUS "Writing pkg-config file...")
-configure_file(${CMAKE_SOURCE_DIR}/ModemManagerQt.pc.cmake ${CMAKE_BINARY_DIR}/${libraryName}.pc @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/${libraryName}.pc.cmake ${CMAKE_BINARY_DIR}/${libraryName}.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/${libraryName}.pc DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}/pkgconfig/")

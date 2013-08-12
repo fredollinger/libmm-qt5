@@ -27,4 +27,4 @@ Version: @VERSION@
 
 Requires: Qt5Core Qt5DBus Qt5Xml
 Cflags: -I${includedir} @CMAKE_INCLUDE_PATH@
-Libs: -L${libdir} -lModemManagerQt @CMAKE_LIBRARY_PATH@
+Libs: -L${libdir} -lModemManagerQt5 @CMAKE_LIBRARY_PATH@
